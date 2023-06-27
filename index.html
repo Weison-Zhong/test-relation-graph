@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #cy {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            border: 1px solid red;
+        }
+
+        #box {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="box">
+        <div id="cy"></div>
+    </div>
+    <script src="./jquery.min.js"></script>
+    <script src="./main.js"></script>
+    <script>
+        const layoutConfig = {
+            name: 'cose',//用哪种方式排列，可选：breadthfirst(广度优先)、cose(缝制，乱交)、preset(预设)、circle(圆形)、grid(矩形)
+            idealEdgeLength: 60,
+            nodeOverlap: 20,
+            refresh: 20,
+            fit: true,
+            padding: 30,
+            randomize: false,
+            componentSpacing: 20,
+            nodeRepulsion: 400,
+            edgeElasticity: 10,
+            nestingFactor: 5,
+            animate: true,//出来动画
+            gravity: 80,
+            numIter: 1000,
+            initialTemp: 200,
+            coolingFactor: 0.95,
+            minTemp: 1.0
+        }
+        let nodeid = 1001;
+        const data = {
+            nodes: [
+                { data: { id: 'n1', target: true, type: 'People' } },
+                { data: { id: 'n2', target: false, type: 'Company' } },
+                { data: { id: 'n3', target: false, type: 'Company' } },
+                { data: { id: 'n4', target: false, type: 'Company' } },
+                { data: { id: 'n5', target: false, type: 'Company' } },
+                { data: { id: 'n6', target: false, type: 'Company' } },
+                // {data:{id:'三层1',target:false,type:'Company'}},
+                // {data:{id:'三层2',target:false,type:'Company'}},
+                // {data:{id:'三层3',target:false,type:'Company'}},
+                // {data:{id:'三层4',target:false,type:'Company'}},
+            ],
+            edges: [
+                { data: { source: 'n1', target: 'n2', label: '董事' } },
+                { data: { source: 'n1', target: 'n3', label: '投资' } },
+                { data: { source: 'n1', target: 'n4', label: '董事' } },
+                { data: { source: 'n1', target: 'n5', label: '投资' } },
+                { data: { source: 'n1', target: 'n6', label: '投资' } },
+                { data: { source: 'n6', target: 'n1', label: '一层4反向关系' } },
+            ]
+        }
+        var cy = cytoscape({
+            container: document.getElementById('cy'),
+            boxSelectionEnabled: true,
+            autounselectify: true,
+            motionBlur: !1,
+            maxZoom: 2.5,
+            minZoom: .4,
+            wheelSensitivity: .1,//滑动滚轮一次缩放大小
+            textureOnViewport: !1,
+            style: [{
+                selector: 'node',
+                style: {
+                    "content": function (ele) {
+                        return ele.data('label') || ele.data('id')
+                    },
+                    "text-valign": 'center',
+                    "width": function (a) {
+                        return "Company" == a.data('type') ? 60 : 45
+                    },
+                    "height": function (a) {
+                        return "Company" == a.data('type') ? 60 : 45
+                    },
+                    "background-color": function (a) {
+                        return !a.data('target') ? '#47D2AC' : "Company" == a.data('type') ?
+                            '#2196F4' : '#EAA829'
+                    },
+                    "color": '#fff',
+                    "border-color": function (a) {
+                        return !a.data('target') ? '#47D2AC' : "Company" == a.data('type') ?
+                            '#2196F4' : '#EAA829'
+                    },
+                    "border-width": 1,
+                    "text-wrap": "wrap",
+                    "font-size": 10,
+                    "font-family": "microsoft yahei",
+                    "overlay-color": "#fff",
+                    "overlay-opacity": 0,
+                    "background-opacity": 1,
+                    "shape": "ellipse",
+                    "z-index-compare": "manual",
+                    "z-index": 20,
+                    "padding": function (a) {
+                        return "Company" == a.data("type") ? 3 : 0
+                    },
+                    "text-max-width": 60,
+                    "text-margin-y": function (a) {
+                        return "Company" == a.data("type") ? 4 : 2
+                    },
+                    "label": function (a) {
+                        a = a.data("id");
+                        var b = a.length;
+                        return 5 >= b ? a : 5 <= b && 9 >= b ? a.substring(0, b - 5) + "\n" + a.substring(
+                            b - 5, b) : 9 <= b && 13 >= b ? a.substring(0, 4) + "\n" + a.substring(
+                                4, 9) + "\n" + a.substring(9, 13) : a.substring(0, 4) + "\n" + a.substring(
+                                    4, 9) + "\n" + a.substring(9, 12) + ".."
+                    },
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    // 添加箭头
+                    "line-style": function (a) {
+                        return "solid"
+                    },
+                    "curve-style": "bezier",
+                    "control-point-step-size": 20,
+                    "target-arrow-shape": "triangle",
+                    "target-arrow-color": function (a) {
+                        // return a.data("color")
+                        return '#DCDCDC'
+                    },
+                    "arrow-scale": .5,
+                    "line-color": function (a) {
+                        // return a.data("color")
+                        return '#DCDCDC'
+                    },
+                    "label": function (a) {
+                        return a.data("label")
+                    },
+                    "text-opacity": .8,
+                    "font-size": 10,
+                    "background-color": function (a) {
+                        return "#333"
+                    },
+                    "width": 1,
+                    "overlay-color": "#fff",
+                    "overlay-opacity": 0,
+                    "font-family": "microsoft yahei"
+                }
+            },
+            {
+                selector: ':selected',
+                style: {
+                    "border-width": 3,
+                    "border-color": '#333',
+                    "background-color": 'black',
+                    "line-color": 'black',
+                    "target-arrow-color": 'black',
+                    "source-arrow-color": 'black'
+                }
+            },
+            {
+                selector: ".nodeHover", //节点变暗，有悬停效果
+                style: {
+                    "shape": "ellipse",
+                    "background-opacity": .8
+                }
+            },
+            {
+                selector: ".nodeActive",
+                style: {
+                    "border-color": '#4EA2F0',
+                    "border-width": 10,
+                    "border-opacity": .5
+                }
+            },
+            {
+                selector: ".edgeShow",
+                style: {
+                    "color": "#999",
+                    "text-opacity": 1,
+                    "font-weight": 400,
+                    "label": function (a) {
+                        return a.data("label")
+                    },
+                    "font-size": 10,
+                    "arrow-scale": .8,
+                    "width": 1.5,
+                    "source-text-margin-y": 20,
+                    "target-text-margin-y": 20,
+                },
+            },
+            {
+                selector: ".edgeActive",
+                style: {
+                    "arrow-scale": .8,
+                    "width": 1.5,
+                    "color": "#330",
+                    "text-opacity": 1,
+                    "font-size": 10,
+                    "text-background-color": "#fff",
+                    "text-background-opacity": .8,
+                    "text-background-padding": 0,
+                    "source-text-margin-y": 20,
+                    "target-text-margin-y": 20,
+                    "z-index-compare": "manual",
+                    "z-index": 1,
+                    "line-color": function (a) { //直线颜色
+                        return "#4EA2F0"
+                    },
+                    "target-arrow-color": function (a) { //箭头颜色
+                        return "#4EA2F0"
+                    },
+                    label: function (a) {
+                        return a.data("label")
+                    }
+                }
+            },
+            {
+                selector: ".dull",
+                style: {
+                    "z-index": 1,
+                    "opacity": .2,
+                }
+            }
+            ],
+            elements: data,
+            layout: layoutConfig
+        })
+        cy.collection("edge").addClass("edgeShow");
+        cy.on("mouseover", "node", function (a) {
+            $('#cy').css('cursor', 'move');
+            let c = a.target;
+            c.addClass("nodeHover");
+            // cy.collection("edge").removeClass("edgeShow");
+            cy.collection("edge").removeClass("edgeActive");
+            c.neighborhood("edge").addClass("edgeActive");
+        })
+        cy.on("mouseout", "node", function (a) {
+            $('#cy').css('cursor', 'default');
+            let c = a.target;
+            c.removeClass("nodeHover");
+            cy.collection("edge").removeClass("edgeActive");
+        })
+        cy.on("click", "node", function (e) {
+            const targetId = e.target.data('id');
+            console.log("click???", targetId); //节点点击
+            let c = e.target;
+            c.removeClass("nodeActive");
+            cy.collection("edge").removeClass("edgeActive");
+            var currentTapStamp = e.timeStamp;
+            var msFromLastTap = currentTapStamp - previousTapStamp;
+
+            if (msFromLastTap < doubleClickDelayMs) {
+                e.target.trigger('doubleTap', targetId);
+            }
+            previousTapStamp = currentTapStamp;
+        })
+        // cy.on('doubleTap', 'node', function (event) {
+        //     console.log("SHAUNGJI");
+        // });
+        // cy.on('doubleTap', function (event, originalTapEvent) {
+        //     // alert('doubleTap');
+        //     console.log({event});
+        //     console.log({originalTapEvent});
+        // });
+
+        var doubleClickDelayMs = 350;
+        var previousTapStamp;
+        // cy.on('tap', function (e) {
+        //     console.log("tap");
+
+        // });
+
+        cy.on('doubleTap', function (_event, targetId) {
+
+            cy.nodes().forEach(node => {
+                node.lock();
+            });
+
+            const currentNodeId = nodeid++;
+
+            cy.add([
+                {
+                    group: 'nodes',
+                    data: {
+                        id: currentNodeId
+                    }
+                },
+                {
+                    group: 'edges',
+                    data: {
+                        id: currentNodeId + '-edge',
+                        source: currentNodeId,
+                        target: targetId
+                    }
+                }
+            ]);
+
+            const layout = cy.makeLayout(layoutConfig);
+            layout.run();
+
+            layout.on("layoutstop", () => {
+                cy.nodes().forEach(node => {
+                    node.unlock();
+                    cy.fit(cy.$(`#${currentNodeId}`).neighborhood());
+                })
+            })
+        });
+
+        // cy.on('tap', 'node', function (evt) {
+        //     let node = evt.target;
+        //     // console.log('tapped ' + node.id());
+        //     if (node.selected()) {
+        //         console.log('selected 双击？？' + node.id());
+        //     }
+        // });
+
+
+        cy.on("vmousedown", "node", function (a) { //监听鼠标左键按下
+            let c = a.target;
+            cy.collection("edge").addClass('dull');
+            cy.collection("node").addClass('dull');
+            c.removeClass("dull");
+            c.neighborhood("edge").removeClass("dull");
+            c.neighborhood("edge").addClass("edgeActive");
+            c.neighborhood("edge").connectedNodes().removeClass("dull"); //当前节点的邻域边的边缘节点！
+            // c.neighborhood("node").removeClass("dull");//与上面意义相同
+        })
+        cy.on("tapend", "node", function (a) { //监听鼠标左键释放
+            let c = a.target;
+            // cy.collection("edge").removeClass('dull');
+            // cy.collection("node").removeClass('dull');
+            // c.neighborhood("edge").removeClass("edgeActive");
+            // c.neighborhood("node").removeClass("nodeActive");
+
+            cy.collection("edge").addClass('dull');
+            cy.collection("node").addClass('dull');
+            c.removeClass("dull");
+            c.neighborhood("edge").removeClass("dull");
+            c.neighborhood("edge").addClass("edgeActive");
+            c.neighborhood("edge").connectedNodes().removeClass("dull");
+        })
+        //线
+        cy.on("mouseover", "edge", function (a) {
+            let c = a.target;
+            cy.collection("edge").removeClass("edgeActive");
+            c.addClass("edgeActive")
+        })
+        cy.on("mouseout", "edge", function (a) {
+            let c = a.target;
+            c.removeClass("edgeActive")
+        })
+
+        $('canvas').click(function (a) {
+            // cy.collection("edge").removeClass('dull');
+            // cy.collection("node").removeClass('dull');
+            console.log(1);
+            // 空白处点击
+        })
+        /**
+         * 点击画布，节点全部恢复高亮
+         */
+        cy.on('click', function (event) {
+            // cy.lock();
+            console.log("画布？？");
+            var evtTarget = event.target;
+            if (evtTarget === cy) {
+                cy.collection("edge").removeClass('dull');
+                cy.collection("node").removeClass('dull');
+            }
+        });
+    </script>
+</body>
+
+</html>
