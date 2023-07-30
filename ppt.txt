@@ -1,0 +1,16 @@
+https://my.visme.co/editor/enk2WTZRbk83c2YrYjBIR0VUSzQ4UT09OjpAxnxJHgfGUnKbPZdUxC1B/basics 
+收费，可导入
+https://github.com/pipipi-pikachu/PPTist   VUE3 GPL3.0 可导入，但效果还原不好
+
+
+https://www.onlyoffice.com/see-it-in-action.aspx?from=presentationeditor 不可导入
+
+
+https://gitbrent.github.io/PptxGenJS/demo/react/index.html API形式编辑生成ppt，不可导入
+
+https://blog.csdn.net/qq_38074118/article/details/115208495
+
+
+https://www.microsoft.com/zh-tw/microsoft-365/free-office-online-for-the-web 微软不支持嵌入
+
+新思路，后台转HTML再编辑？
